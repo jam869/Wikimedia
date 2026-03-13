@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewBag.PageTitle = "Application Web";
+}
+
+<div id="panel"></div>
+
+@section Scripts {
+    <script>
+
+        $(() => {
+            newSession(120);
+            let panel = new AutoRefreshedPanel("panel", "/Home/GetData", 3);
+        })
+    </script>
+}
+
