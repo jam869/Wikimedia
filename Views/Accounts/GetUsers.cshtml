@@ -1,5 +1,7 @@
-﻿@model IEnumerable<Models.Login>
+﻿
+@model IEnumerable<Models.Login>
 @{
+    // avant changement
     var loggedUsersId = (List<int>)ViewBag.LoggedUsersId;
     int count = Model.Count();
     List<Models.Login> logins = Model.ToList();
