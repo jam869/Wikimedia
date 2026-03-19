@@ -1,7 +1,7 @@
 ﻿using Models;
 using System.Web.Mvc;
 
-namespace WebApplication.Controllers
+namespace Controllers
 {
     public class NotificationsController : Controller
     {

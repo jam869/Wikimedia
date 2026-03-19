@@ -4,56 +4,39 @@
     margin-right: 8px;
     cursor: pointer;
     text-decoration: none;
-
-    &:hover {
-        color: rgb(103, 165, 247);
-    }
 }
 
-.cmdIconSmall {
-    font-size: 1rem;
-    color: #aaa;
-    margin-left: 8px;
-    cursor: pointer;
-    text-decoration: none;
-
-    &:hover {
+    .cmdIcon:hover {
         color: rgb(103, 165, 247);
     }
-} 
 
 .menuIcon {
     font-size: 1.2rem;
     text-align: center;
     color: darkgray;
 }
-
 .headerMenu {
-    display: grid;
-    grid-template-columns: 3em auto 30px;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-
-    & a {
-        text-decoration: none;
-    }
+    padding: 0 10px;
+    height: 50px; 
 }
 
-    
+    .headerMenu a {
+        text-decoration: none;
+    }
 
 .pageTitle {
-    font-size: 2em;
+    font-size: 1.5em;
     text-align: left;
     font-weight:bold;
 }
-
 .menu {
     display: flex;
-    gap: 4px;
-    justify-content: flex-end;
+    gap: 10px; 
     align-items: center;
-    font-size: 1.2em;
 }
-
 .siteIcon {
     background-image: URL('../WebApp.png');
     background-position: center;
@@ -65,7 +48,7 @@
 
 .item-layout {
     display: grid !important;
-    grid-template-columns: 38px auto !important;
+    grid-template-columns: 40px auto !important;
     align-items: center;
     cursor:pointer;
 }
@@ -76,4 +59,14 @@
 }
 .flexItem {
     flex:1;
+}
+.UserSmallAvatar {
+    width: 35px !important;
+    height: 35px !important;
+    border-radius: 50%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: 1px solid #ccc;
+    flex-shrink: 0;
 }

@@ -1,82 +1,31 @@
-﻿
-@model IEnumerable<Models.Login>
-@{
-    // avant changement
-    var loggedUsersId = (List<int>)ViewBag.LoggedUsersId;
-    int count = Model.Count();
-    List<Models.Login> logins = Model.ToList();
-    int index = 0;
-    bool first = true;
-    while (index < count)
-    {
-        var login = logins[index];
-        var shiftedEventDate = login.LoginDate.AddHours((int)Session["TimeZoneOffset"]);
-        var shiftedLogoutDate = login.LogoutDate.AddHours((int)Session["TimeZoneOffset"]);
-        int currentDay = shiftedEventDate.Day;
+﻿@model IEnumerable<Models.User>
 
-        string open = first ? "open" : "";
-        first = false;
+@foreach (var user in Model)
+{
+    <div class="userLayout">
+        <div class="userInnerLayout">
+            @* Affichage de l'avatar et du nom *@
+            @Helper.AvatarUser(user, "UserSmallAvatar")
 
-        object param = new { day = login.LoginDate.ToShortDateString().Trim() };
-        <div style="display:grid; grid-template-columns:auto 20px; align-items:start;">
-            <details @open>
-                <summary>@shiftedEventDate.ToShortDateString() </summary>
-                @do
+            @* Icônes de gestion utilisant les classes attendues par ManageUsers.cshtml *@
+            <div class="userCommandPanel">
+
+                @* Changer l'accès (ex: promouvoir à admin) *@
+                <i class="setUserAccessCmd fa fa-user-plus" userId="@user.Id" access="2" title="Promouvoir"></i>
+
+                @* Bloquer / Débloquer *@
+                <i class="blockCmd fa @(user.Blocked ? "fa-ban text-danger" : "fa-check-circle text-success")"
+                   userId="@user.Id" title="@(user.Blocked ? "Débloquer" : "Bloquer")"></i>
+
+                @* Supprimer *@
+                <i class="deleteCmd fa fa-user-times text-danger" userId="@user.Id" title="Effacer @user.Name"></i>
+
+                @* Forcer la vérification *@
+                @if (!user.Verified)
                 {
-                    if (login.User != null)
-                    {
-                        <div class="journalLayout">
-                            <div style="width:200px">@Helper.AvatarUser(login.User, "UserSmallAvatar")</div>
-                            <div>@shiftedEventDate.ToString("HH:mm")</div>
-
-                            @if (shiftedEventDate != shiftedLogoutDate)
-                            {
-                                <div>-</div>
-                                <div>@shiftedLogoutDate.ToString("HH:mm")</div>
-                            }
-                            else
-                            {
-                                if (loggedUsersId.Contains(login.User.Id))
-                                {
-                                    loggedUsersId.Remove(login.User.Id);
-                                    <div>-</div>
-                                    <div title="Est en ligne en ce moment">@Helper.OnLineStatusIcon(true, false)</div>
-                                }
-                                else
-                                {
-                                    <div>-</div>
-                                    <div>@Helper.TimeOutIcon()</div>
-                                }
-                            }
-
-                            @if (true && login.IpAddress != "::1" && login.CountryCode != null)
-                            {
-                                <div>
-                                    @Helper.CountryFlag(login.CountryCode.ToLower())
-                                </div>
-                                <div class="extraJournalInfo IP_Address">
-                                    @login.IpAddress, @login.City, @login.RegionName
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="extraJournalInfo IP_Address">&nbsp;</div>
-                            }
-
-                        </div>
-                    }
-                    index++;
-                    if (index < count)
-                    {
-                        login = logins[index];
-                        shiftedEventDate = login.LoginDate.AddHours((int)Session["TimeZoneOffset"]);
-                        shiftedLogoutDate = login.LogoutDate.AddHours((int)Session["TimeZoneOffset"]);
-                    }
-                } while (index < count && currentDay == shiftedEventDate.Day);
-            </details>
-            <div style="margin-top:4px;margin-left:2px;">
-                @Helper.IconConfirmCmdWithParam("Accounts", "DeleteLoginsDay", param, "fa-times", "Effacer la journée du " + shiftedEventDate.ToShortDateString())
+                    <i class="forceVerifyCmd fa fa-envelope-check text-warning" userId="@user.Id" title="Vérifier manuellement"></i>
+                }
             </div>
         </div>
-    }
+    </div>
 }
