@@ -1,10 +1,11 @@
-﻿using DAL;
+﻿using Controllers;
+using DAL;
 using Models;
+using Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using Controllers;
-using Models;
 
 
 
@@ -192,6 +193,7 @@ public class MediasController : Controller
         {
             Media.OwnerId = currentUser.Id; 
         }
+        Media.PublishDate = DateTime.Now;
         DB.Medias.Add(Media);
         return RedirectToAction("List");
     }
@@ -209,6 +211,16 @@ public class MediasController : Controller
                 if (currentUser != null && (Media.OwnerId == currentUser.Id || currentUser.Access == Access.Admin))
                 {
                     return View(Media);
+                }
+                else
+                {
+                    currentUser.Online = false;
+                    DB.Logins.UpdateLogoutByUserId(currentUser.Id);
+
+                    Models.User.ConnectedUser = null;
+                    Session.Abandon();
+
+                    return Redirect("/Accounts/Login?message=Accès illégal! Vous avez été déconnecté.&success=false");
                 }
             }
         }
@@ -242,9 +254,22 @@ public class MediasController : Controller
             Media media = DB.Medias.Get(id);
             User currentUser = Models.User.ConnectedUser;
 
-            if (media != null && currentUser != null && (media.OwnerId == currentUser.Id || currentUser.Access == Access.Admin))
+            if (media != null)
             {
-                DB.Medias.Delete(id);
+                if (currentUser != null && (media.OwnerId == currentUser.Id || currentUser.Access == Access.Admin))
+                {
+                    DB.Medias.Delete(id);
+                }
+                else
+                {
+                    currentUser.Online = false;
+                    DB.Logins.UpdateLogoutByUserId(currentUser.Id);
+
+                    Models.User.ConnectedUser = null;
+                    Session.Abandon();
+
+                    return Redirect("/Accounts/Login?message=Accès illégal! Vous avez été déconnecté.&success=false");
+                }
             }
         }
         return RedirectToAction("List");

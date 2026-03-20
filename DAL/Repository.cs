@@ -230,7 +230,7 @@ namespace DAL
             }
             return newId;
         }
-        // Update one
+      
         public virtual bool Update(T data)
         {
             if (!TransactionOnGoing) mutex.WaitOne();
@@ -239,8 +239,13 @@ namespace DAL
                 T dataToUpdate = Get(Id(data));
                 if (dataToUpdate != null)
                 {
+                   
                     ImageAsset.Update(data);
-                    dataList[dataList.IndexOf(dataToUpdate)] = data;
+
+                    int index = dataList.IndexOf(dataToUpdate);
+
+                    dataList[index] = data;
+
                     UpdateFile();
                     return true;
                 }

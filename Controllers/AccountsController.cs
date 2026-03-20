@@ -105,6 +105,12 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult Subscribe(User user, string NotifyCB = "off")
         {
+
+            if (DB.Users.ToList().Any(u => u.Email.ToLower() == user.Email.ToLower()))
+            {
+                ModelState.AddModelError("Email", "Ce courriel est déjà utilisé!");
+                return View(user);
+            }
             user.Notify = NotifyCB == "on";
             DB.Users.Add(user);
             Models.User.ConnectedUser = user;
@@ -125,7 +131,13 @@ namespace Controllers
                 {
                     newlySubscribedUser.Verified = true;
                     Session["CurrentLoginEmail"] = newlySubscribedUser.Email;
+
                     DB.Users.Update(newlySubscribedUser);
+
+                 
+                    Models.User.ConnectedUser = null;
+                    Session.Abandon();
+
                     DB.Events.Add("User verified");
                     AccountsEmailing.SendEmailUserStatusChanged("Votre adresse de courriel a été confirmée.", newlySubscribedUser);
                     return Redirect("/Accounts/Login?message=Votre adresse de courriel a été vérifiée avec succès!");
@@ -224,30 +236,35 @@ namespace Controllers
         [ValidateAntiForgeryToken()]
         public ActionResult EditProfil(User user, string NotifyCB = "off")
         {
-            /* 
-                important note:
-                form checkbox have odd behavior :
-                nothing in playload if not checked
-                "on" if checked 
-            */
-
             DB.Events.Add("EditProfil");
             bool newEmail = false;
             User connectedUser = Models.User.ConnectedUser;
+
+            if (user.Email.ToLower() != connectedUser.Email.ToLower() &&
+        DB.Users.ToList().Any(u => u.Email.ToLower() == user.Email.ToLower() && u.Id != connectedUser.Id))
+            {
+                ModelState.AddModelError("Email", "Ce courriel est déjà utilisé par un autre compte!");
+                Session["CurrentEditingUserPassword"] = DateTime.Now.Ticks.ToString();
+                return View(user); 
+            }
+
             user.Id = connectedUser.Id;
             user.Blocked = connectedUser.Blocked;
             user.Access = connectedUser.Access;
             user.Verified = connectedUser.Verified;
             user.Notify = NotifyCB == "on";
-            // check password has been changed 
+
+          
+          
             if (user.Password == (string)Session["CurrentEditingUserPassword"])
-                user.Password = connectedUser.Password; // no password change
-            // check if Email has been changed
+                user.Password = connectedUser.Password; 
+
+            
             if (user.Email != connectedUser.Email)
             {
                 newEmail = true;
                 AccountsEmailing.SendEmailChangedVerification(Url.Action("VerifyNewEmail", "Accounts", null, Request.Url.Scheme), user);
-                user.Email = connectedUser.Email; // new Email will commited on verification
+                user.Email = connectedUser.Email;
             }
             if (DB.Users.Update(user))
             {

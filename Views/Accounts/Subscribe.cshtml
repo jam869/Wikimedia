@@ -4,9 +4,9 @@
     ViewBag.PageTitle = "Nouveau compte";
 }
 
-
 @section Scripts {
     <script src="/Scripts/image-control.js"></script>
+
     <script>
         var showPassword = false;
 
@@ -14,11 +14,7 @@
             new Session(120);
             initFormValidation();
 
-           
-            let fieldControl = $('#Email');
-            fieldControl.on("blur", () => { ConflictTestRequest("/Accounts/EmailAvailable", 'Email'); });
-            $("#submit").on("click", () => { ConflictTestRequest("/Accounts/EmailAvailable", 'Email'); });
-            $("#submit").parents('form:first').on("submit", function (e) { return !Conflict(); });
+            addConflictValidation("/Accounts/EmailAvailable", 'Email', 'submit');
 
             $("#toggleShowPassword").hide();
             $("#toggleShowPassword").click(() => { toggleShowPassword(); });
@@ -28,8 +24,8 @@
                     $("#toggleShowPassword").hide();
                 else
                     $("#toggleShowPassword").show();
-            })
-        })
+            });
+        });
 
         function toggleShowPassword() {
             showPassword = !showPassword;

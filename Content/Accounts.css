@@ -32,8 +32,10 @@
 .passwordShowIcon {
     transform: translate(-32px, 12px) !important;
     cursor: pointer;
-    color:#aaa;
-    font-size:1.1em;
+    color: #aaa;
+    font-size: 1.1em;
+    position: relative;
+    z-index: 10;
 }
 
 

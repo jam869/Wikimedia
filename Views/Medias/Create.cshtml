@@ -2,24 +2,31 @@
 @{
     ViewBag.Action = "Create";
     Html.RenderPartial("MediaForm");
-    ViewBag.PageTitle = "Ajout"; 
-}
-
-@section Scripts { <!-- Cette section ne doit pas être placée dans une vue partielle -->
+    ViewBag.PageTitle = "Ajout";
+}@section Scripts {
     <script>
         $(() => {
-            // Nécessaire pour la validation des champs de formulaire
             initFormValidation();
-            addConflictValidation("/Medias/CheckConflict", 'YoutubeId' /* field unicity check */, 'submit' /* form submit button Id */);
-            $("#YoutubeId").on("change", function () {
-                let youtubeId = $("#YoutubeId").val().trim();
-                if (youtubeId.indexOf("=") > -1)
-                    youtubeId = youtubeId.split("=")[1];
-                if (youtubeId.indexOf("&") > -1)
-                    youtubeId = youtubeId.split("&")[0];
-                $("#YoutubeId").val(youtubeId);
-                $("#previewThumbnail").attr("src", `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`)
+            addConflictValidation("/Medias/CheckConflict", 'YoutubeId', 'submit');
+
+            $("#YoutubeId").on("input", function () {
+                let inputVal = $(this).val().trim();
+                let youtubeId = inputVal;
+
+                let regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                let match = inputVal.match(regExp);
+
+                if (match && match[2].length === 11) {
+                    youtubeId = match[2];
+                    $("#YoutubeId").val(youtubeId);
+                }
+                if (youtubeId.length > 0) {
+                    $("#previewThumbnail").attr("src", `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`);
+                } else {
+                    $("#previewThumbnail").attr("src", "");
+                }
             })
         })
     </script>
+}
 }

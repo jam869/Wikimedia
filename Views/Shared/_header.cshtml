@@ -40,8 +40,8 @@
             @if ((controller == "medias" && (action == "create" || action == "edit")) ||
                  (controller == "accounts" && (action == "subscribe" || action == "editprofil")))
             {
-                <a href="#" onclick="$('form').submit(); return false;" class="cmdIcon fa fa-save" title="Enregistrer"></a>
-                <a href="/Medias/list" class="cmdIcon fa fa-times" title="Annuler"></a>
+            <a href="#" onclick="$('#submit').click(); return false;" class="cmdIcon fa fa-save" title="Enregistrer"></a>
+            <a href="/Medias/list" class="cmdIcon fa fa-times" title="Annuler"></a>
             }
 
             @if (connectedUser != null)

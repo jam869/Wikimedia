@@ -50,25 +50,27 @@
                InvalidMessage="Caractère illégal"
                value="@Model.Name" />
     </fieldset>
-        <fieldset>
-            <legend>Courriel</legend>
-            <input name="Email" id="Email"
-                   class="form-control Email"
-                   placeholder="Courriel"
-                   required
-                   RequireMessage="Veuillez entrer votre adresse de courriel"
-                   InvalidMessage="Courriel invalide"
-                   CustomErrorMessage="Ce courriel est déjà utilisé!"
-                   value="@Model.Email" />
-            <input id="ConfirmEmail"
-                   matchedInputId="Email"
-                   class="form-control MatchedInput"
-                   placeholder="Confirmation"
-                   required
-                   RequireMessage="Veuillez confirmer votre adresse de courriel"
-                   InvalidMessage="Les courriels ne correspondent pas"
-                   value="@Model.Email" />
-        </fieldset>
+    <fieldset>
+        <legend>Courriel</legend>
+        <input name="Email" id="Email"
+               class="form-control Email"
+               placeholder="Courriel"
+               required
+               RequireMessage="Veuillez entrer votre adresse de courriel"
+               InvalidMessage="Courriel invalide"
+               CustomErrorMessage="Ce courriel est déjà utilisé!"
+               value="@Model.Email" />
+
+        @Html.ValidationMessage("Email", "", new { @class = "text-danger", style = "font-weight:bold; display:block; margin-bottom:10px;" })
+        <input id="ConfirmEmail"
+               matchedInputId="Email"
+               class="form-control MatchedInput"
+               placeholder="Confirmation"
+               required
+               RequireMessage="Veuillez confirmer votre adresse de courriel"
+               InvalidMessage="Les courriels ne correspondent pas"
+               value="@Model.Email" />
+    </fieldset>
         <fieldset>
             <legend>Mot de passe</legend>
             <div style="display:grid; grid-template-columns:auto 15px; gap:6px">
@@ -109,12 +111,10 @@
         </fieldset>
         <fieldset>
             <legend>Avatar</legend>
-            @Html.HiddenFor(model => model.AvatarImageData)
-
             <div class="imageUploader"
-                 id="Avatar_Image"
-                 controlId="AvatarImageData"
+                 controlId="Avatar"
                  imageSrc="@Model.Avatar"
+                 title="Cliquez pour choisir une image"
                  waitingImage="/Content/UI-Images/Loading_icon.gif">
             </div>
             @Html.ValidationMessageFor(model => model.Avatar, "", new { @class = "text-danger" })

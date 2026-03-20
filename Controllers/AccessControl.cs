@@ -5,10 +5,8 @@ using System.Web.Mvc;
 
 namespace Controllers
 {
-
     public class AccessControl
     {
-
         public class UserAccess : AuthorizeAttribute
         {
             private Access RequiredAccess { get; set; }
@@ -20,27 +18,42 @@ namespace Controllers
 
             protected override bool AuthorizeCore(HttpContextBase httpContext)
             {
-                bool ajaxRequest = HttpContext.Current.Request.Headers[13] == "cors";
                 try
                 {
                     if (User.ConnectedUser == null)
-                    {
-                        if (!ajaxRequest)
-                            httpContext.Response.Redirect("/Accounts/Login?message=Accès non autorisé!&success=false");
                         return false;
-                    }
-                    else
-                    {
-                        if (User.ConnectedUser.Access < RequiredAccess || User.ConnectedUser.Blocked)
-                        {
-                            return false;
-                        }
-                        return true;
-                    }
+
+                    if (User.ConnectedUser.Access < RequiredAccess || User.ConnectedUser.Blocked)
+                        return false;
+
+                    return true;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return false;
+                }
+            }
+
+            protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
+            {
+                if (User.ConnectedUser != null)
+                {
+                    User.ConnectedUser.Online = false;
+
+                    DAL.DB.Logins.UpdateLogoutByUserId(User.ConnectedUser.Id);
+
+                    User.ConnectedUser = null;
+                    filterContext.HttpContext.Session.Abandon();
+                }
+
+                bool ajaxRequest = filterContext.HttpContext.Request.Headers["cors"] != null;
+                if (!ajaxRequest)
+                {
+                    filterContext.Result = new RedirectResult("/Accounts/Login?message=Accès non autorisé! Vous avez été déconnecté par sécurité.&success=false");
+                }
+                else
+                {
+                    filterContext.Result = new HttpUnauthorizedResult();
                 }
             }
         }
