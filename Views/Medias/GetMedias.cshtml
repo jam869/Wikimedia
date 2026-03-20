@@ -4,10 +4,30 @@
 {
     foreach (var media in Model)
     {
-        <div class="mediaLayout">
+        // On récupère l'usager connecté pour savoir si on affiche les icônes de partage
+        Models.User currentUser = Models.User.ConnectedUser;
+
+        <div class="mediaLayout" style="position: relative;">
             <a href="/Medias/Details/@media.Id" title="Voir les détails de @media.Title" style="text-decoration:none; width:100% !important">
-                <div class="mediaThumbnail"
-                     style="background-image:url('https://img.youtube.com/vi/@media.YoutubeId/mqdefault.jpg');">
+                <div class="mediaThumbnail" style="background-image:url('https://img.youtube.com/vi/@media.YoutubeId/mqdefault.jpg'); position: relative;">
+
+                    @* ÉTAPE B.5 : Avatar du créateur superposé en haut à droite *@
+                    <div style="position: absolute; top: 5px; right: 5px;">
+                        <div class="UserSmallAvatar"
+                             style="background-image: url(@media.Owner.Avatar); width: 35px; height: 35px; border-radius: 50%; border: 2px solid white; background-size: cover; background-position: center;"
+                             title="@media.Owner.Name">
+                        </div>
+                    </div>
+
+                    @* ÉTAPE B.6 : Icône de partage (Uniquement pour l'usager connecté) *@
+                    @if (currentUser != null && media.OwnerId == currentUser.Id)
+                    {
+                        <div style="position: absolute; top: 5px; left: 5px; background: rgba(255,255,255,0.85); padding: 4px 6px; border-radius: 4px; color: black;">
+                            <i class="fa @(media.Shared ? "fa-share-nodes text-success" : "fa-lock text-warning")"
+                               title="@(media.Shared ? "Partagé publiquement" : "Privé")"></i>
+                        </div>
+                    }
+
                 </div>
             </a>
 
@@ -18,7 +38,8 @@
         </div>
     }
 }
+
 else
 {
-    <h3>Aucun résulat</h3>
+< h3 > Aucun résulat </ h3 >
 }

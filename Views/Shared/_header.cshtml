@@ -4,20 +4,18 @@
     string action = HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString().ToLower();
     User connectedUser = Models.User.ConnectedUser;
 
-    // Variables de tri/recherche (gardez votre logique actuelle)
     bool SearchAscending = Session["SortAscending"] != null ? (bool)Session["SortAscending"] : true;
 }
 
 <div class="section roundedBorder">
     <div class="headerMenu">
-        @* Gauche : Logo et Titre *@
         <div style="display:flex; align-items:center; gap:10px;">
             <a class="siteIcon" href="/Medias/list"></a>
             <div class="pageTitle">@ViewBag.PageTitle</div>
         </div>
 
-        @* Droite : Boutons et Avatar *@
         <div class="menu">
+
             @if (action == "list")
             {
                 <a href="/@controller/Create" class="cmdIcon fa fa-circle-plus" title="Ajouter..."></a>
@@ -25,9 +23,30 @@
                 <a href="/@controller/ToggleSearch" class="cmdIcon fa fa-search"></a>
             }
 
+            @if (controller == "medias" && action == "details")
+            {
+                int mediaId = Session["CurrentMediaId"] != null ? (int)Session["CurrentMediaId"] : 0;
+                if (mediaId != 0)
+                {
+                    Media currentMedia = DAL.DB.Medias.Get(mediaId);
+                    if (currentMedia != null && connectedUser != null &&
+                       (currentMedia.OwnerId == connectedUser.Id || connectedUser.Access == Access.Admin))
+                    {
+                        @Helper.IconCmd("Medias", "Edit", "fa-edit", "Modifier cette vidéo")
+                        @Helper.IconConfirmCmd("Medias", "Delete", "fa-trash", "Effacer cette vidéo")
+                    }
+                }
+            }
+            @if ((controller == "medias" && (action == "create" || action == "edit")) ||
+                 (controller == "accounts" && (action == "subscribe" || action == "editprofil")))
+            {
+                <a href="#" onclick="$('form').submit(); return false;" class="cmdIcon fa fa-save" title="Enregistrer"></a>
+                <a href="/Medias/list" class="cmdIcon fa fa-times" title="Annuler"></a>
+            }
+
             @if (connectedUser != null)
             {
-                <div class="dropdown">
+                <div class="dropdown" style="margin-left: 10px;">
                     <div data-bs-toggle="dropdown" aria-expanded="false" style="cursor:pointer">
                         <div class="UserSmallAvatar"
                              style="background-image: url(@connectedUser.Avatar);"

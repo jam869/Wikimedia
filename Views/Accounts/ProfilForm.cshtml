@@ -40,17 +40,16 @@
                 </div>
             </fieldset>
         }
-        <fieldset>
-            <legend>Nom</legend>
-            <input name="Name" id="Name"
-                   class="form-control Alpha"
-                   placeholder="Nom"
-                   required
-                   RequireMessage="Veuillez entrer votre adresse de courriel"
-                   InvalidMessage="Caractère illégal"
-                   value="@Model.Name" />
-           
-        </fieldset>
+    <fieldset>
+        <legend>Nom</legend>
+        <input name="Name" id="Name"
+               class="form-control Alpha"
+               placeholder="Nom"
+               required
+               RequireMessage="Veuillez entrer votre nom"
+               InvalidMessage="Caractère illégal"
+               value="@Model.Name" />
+    </fieldset>
         <fieldset>
             <legend>Courriel</legend>
             <input name="Email" id="Email"
@@ -110,7 +109,15 @@
         </fieldset>
         <fieldset>
             <legend>Avatar</legend>
-            @Helper.ImageUploader("Avatar", Model.Avatar, "Cliquez glisser une photo")
+            @Html.HiddenFor(model => model.AvatarImageData)
+
+            <div class="imageUploader"
+                 id="Avatar_Image"
+                 controlId="AvatarImageData"
+                 imageSrc="@Model.Avatar"
+                 waitingImage="/Content/UI-Images/Loading_icon.gif">
+            </div>
+            @Html.ValidationMessageFor(model => model.Avatar, "", new { @class = "text-danger" })
         </fieldset>
     </div>
     <input type="submit" id="submit" style="display:none" />

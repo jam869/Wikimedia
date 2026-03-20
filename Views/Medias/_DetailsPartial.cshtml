@@ -3,30 +3,28 @@
 
 <div class="detailsPanel">
     <dl>
-        <dd>
-            @Model.Title
+        <dd style="display: flex; align-items: center; gap: 10px;">
+            <div class="UserSmallAvatar"
+                 style="background-image: url(@Model.Owner.Avatar); width: 45px; height: 45px; border-radius: 50%; border: 1px solid #ccc; background-size: cover; background-position: center;"
+                 title="@Model.Owner.Name">
+            </div>
+
+            <div style="font-size: 1.2em; font-weight: bold;">
+                @Model.Title
+
+                @{ Models.User currentUser = Models.User.ConnectedUser; }
+                @if (currentUser != null && Model.OwnerId == currentUser.Id && Model.Shared)
+                {
+                    <span class="badge bg-success ms-2" style="font-size: 0.6em; vertical-align: middle;">[Partagé]</span>
+                }
+            </div>
         </dd>
+
         <dd>
             @Helper.YoutubePlayer(Model.YoutubeId)
         </dd>
-        <dd class="description">
-            @Model.Description
-        </dd>
-        <dt>
-            Catégorie
-        </dt>
+        ```
 
-        <dd>
-            @Model.Category
-        </dd>
-
-        <dt>
-            Date de publication
-        </dt>
-
-        <dd>
-            @Helper.When(Model.PublishDate)
-        </dd>
 
     </dl>
 </div>

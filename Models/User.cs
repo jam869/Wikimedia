@@ -11,7 +11,7 @@ using CompareAttribute = System.ComponentModel.DataAnnotations.CompareAttribute;
 namespace Models
 {
     public enum Access { Anonymous, View, Write, Admin }
-    
+
     public class User : Record
     {
         public User()
@@ -41,10 +41,13 @@ namespace Models
         #endregion
 
         #region View members
+
+        [JsonIgnore]
+        public string AvatarImageData { get; set; }
+
         [JsonIgnore]
         public bool Online
         {
-            // maintain in server cache a list of online users Id
             get
             {
                 return User.GetOnlineUser().IndexOf(this.Id) > -1;

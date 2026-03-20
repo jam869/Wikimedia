@@ -6,42 +6,37 @@
 
 
 @section Scripts {
+    <script src="/Scripts/image-control.js"></script>
     <script>
         var showPassword = false;
 
         $(() => {
             new Session(120);
             initFormValidation();
-            addConflictValidation(
-                "/Accounts/EmailAvailable",
-                'Email' /* field unicity check */,
-                'submit' /* form submit button Id */);
+
+           
+            let fieldControl = $('#Email');
+            fieldControl.on("blur", () => { ConflictTestRequest("/Accounts/EmailAvailable", 'Email'); });
+            $("#submit").on("click", () => { ConflictTestRequest("/Accounts/EmailAvailable", 'Email'); });
+            $("#submit").parents('form:first').on("submit", function (e) { return !Conflict(); });
+
             $("#toggleShowPassword").hide();
             $("#toggleShowPassword").click(() => { toggleShowPassword(); });
 
             $("#Password").keyup(() => {
                 if ($("#Password").val() == "")
                     $("#toggleShowPassword").hide();
-                else {
+                else
                     $("#toggleShowPassword").show();
-                }
             })
         })
 
         function toggleShowPassword() {
             showPassword = !showPassword;
-            if (showPassword) {
-                $("#Password").attr("type", 'text');
-                $("#ConfirmPassword").attr("type", 'text');
-                $("#toggleShowPassword").addClass("fa-eye-slash");
-                $("#toggleShowPassword").removeClass("fa-eye");
-            } else {
-                $("#Password").attr("type", 'password');
-                $("#ConfirmPassword").attr("type", 'password');
-                $("#toggleShowPassword").removeClass("fa-eye-slash");
-                $("#toggleShowPassword").addClass("fa-eye");
-            }
+            let type = showPassword ? 'text' : 'password';
+            $("#Password").attr("type", type);
+            $("#ConfirmPassword").attr("type", type);
+            $("#toggleShowPassword").toggleClass("fa-eye-slash fa-eye");
         }
-        
     </script>
 }
