@@ -76,22 +76,22 @@ public class MediasController : Controller
             if (DB.Medias.HasChanged || forceRefresh)
             {
                 InitSessionVariables();
-                User currentUser = Models.User.ConnectedUser; // Récupère l'utilisateur
+                User currentUser = Models.User.ConnectedUser;
 
-                // FILTRE ÉTAPE B.6 : Partagé OU (Connecté ET Propriétaire) OU Admin
                 result = DB.Medias.ToList().Where(m =>
                     m.Shared == true ||
                     (currentUser != null && (m.OwnerId == currentUser.Id || currentUser.Access == Access.Admin))
                 );
 
-                bool search = (bool)Session["Search"];
-                string searchString = (string)Session["SearchString"];
+                bool search = Session["Search"] != null && (bool)Session["Search"];
+                string searchString = (Session["SearchString"] ?? "").ToString().ToLower();
 
                 if (search)
                 {
-                    result = result.Where(c => c.Title.ToLower().Contains(searchString)).OrderBy(c => c.Title);
+                    result = result.Where(c => !string.IsNullOrEmpty(c.Title) && c.Title.ToLower().Contains(searchString));
+
                     string SelectedCategory = (string)Session["SelectedCategory"];
-                    if (SelectedCategory != "")
+                    if (!string.IsNullOrEmpty(SelectedCategory))
                         result = result.Where(c => c.Category == SelectedCategory);
                 }
 
@@ -115,17 +115,19 @@ public class MediasController : Controller
         }
         catch (System.Exception ex)
         {
-            return Content("Erreur interne" + ex.Message, "text/html");
+            return Content("Erreur interne : " + ex.Message, "text/html");
         }
     }
 
 
     public ActionResult List()
     {
+       
+        InitSessionVariables();
+
         ResetCurrentMediaInfo();
         return View();
     }
-
     public ActionResult ToggleSearch()
     {
         if (Session["Search"] == null) Session["Search"] = false;
@@ -167,14 +169,20 @@ public class MediasController : Controller
 
     public ActionResult Details(int id)
     {
-        Session["CurrentMediaId"] = id;
-        Media Media = DB.Medias.Get(id);
-        if (Media != null)
+        Media media = DB.Medias.Get(id);
+        User currentUser = Models.User.ConnectedUser;
+
+       
+        if (media != null && (media.Shared || (currentUser != null && (media.OwnerId == currentUser.Id || currentUser.Access == Access.Admin))))
         {
-            Session["CurrentMediaTitle"] = Media.Title;
-            return View(Media);
+            Session["CurrentMediaId"] = id;
+            Session["CurrentMediaTitle"] = media.Title;
+            return View(media);
         }
+        TempData["ErrorMessage"] = (media == null) ? "Cette vidéo n'existe plus." : "Accès refusé à cette vidéo.";
         return RedirectToAction("List");
+
+   
     }
     [AccessControl.UserAccess(Access.Write)]
     public ActionResult Create()
@@ -286,19 +294,26 @@ public class MediasController : Controller
         return Json(DB.Medias.ToList().Where(c => c.YoutubeId == YoutubeId && c.Id != id).Any(),
                     JsonRequestBehavior.AllowGet /* must have for CORS verification by client browser */);
     }
-
     public ActionResult GetMediaDetails(int id, bool forceRefresh = false)
     {
-        // Ne retourne du HTML que si la base de données a changé ou si c'est forcé
+        Media media = DB.Medias.Get(id);
+        User currentUser = Models.User.ConnectedUser;
+
+        if (media == null || (!media.Shared && (currentUser == null || (media.OwnerId != currentUser.Id && currentUser.Access != Access.Admin))))
+        {
+            return new HttpStatusCodeResult(System.Net.HttpStatusCode.Forbidden);
+        }
+
         if (DB.Medias.HasChanged || forceRefresh)
         {
-            Media media = DB.Medias.Get(id);
-            if (media != null)
-            {
-                return PartialView("_DetailsPartial", media);
-            }
+            return PartialView("_DetailsPartial", media);
         }
-        // Retourne null si aucun changement, le script JS ne fera rien
         return null;
+    }
+
+    public ActionResult KickedFromDetails()
+    {
+        TempData["ErrorMessage"] = "Cette vidéo n'est plus disponible ou l'accès vous a été retiré.";
+        return RedirectToAction("List");
     }
 }

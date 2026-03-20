@@ -2,10 +2,21 @@
 @{ ViewBag.PageTitle = "Détails"; }
 
 <div id="detailsContainer"></div>
-
 @section Scripts {
-    <script src="~/Scripts/autoRefreshPanel.js"></script>
     <script>
-        let detailsPanel = new AutoRefreshedPanel("detailsContainer", "/Medias/GetMediaDetails/@Model.Id", 15);
+        $(() => {
+            let detailsPanel = new AutoRefreshedPanel(
+                "detailsContainer",
+                "/Medias/GetMediaDetails/@Model.Id",
+                5,
+                null
+            );
+
+            $(document).ajaxError(function (event, xhr, settings) {
+                if (settings.url.includes("GetMediaDetails") && (xhr.status === 403 || xhr.status === 404)) {
+                    window.location.href = "/Medias/KickedFromDetails";
+                }
+            });
+        });
     </script>
 }

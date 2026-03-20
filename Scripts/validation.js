@@ -132,8 +132,6 @@ async function ConflictTestRequest(serviceUrl, fieldName) {
     else
         fieldControl[0].setCustomValidity("");
 
- 
-
     conflict = result;
 }
 
@@ -148,7 +146,6 @@ function Conflict() {
 
 function addConflictValidation(serviceUrl, fieldName, submitBtnId) {
     let fieldControl = $('#' + fieldName);
-
     fieldControl.on("blur", () => { ConflictTestRequest(serviceUrl, fieldName) });
     $("#" + submitBtnId).on("click", () => { ConflictTestRequest(serviceUrl, fieldName) });
     $("#" + submitBtnId).parents('form:first').on("submit", function (e) { return !Conflict(); });
